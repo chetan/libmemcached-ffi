@@ -32,6 +32,14 @@ module LibMemcachedFFI
       )
     end
 
+    class HashkitFunctionST < FFI::Struct
+    end
+
+    class HashkitST < FFI::Struct
+      layout(
+      )
+    end
+
     class MemcachedST < FFI::Struct
       layout(
         :state, State.ptr,
