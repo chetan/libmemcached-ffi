@@ -60,8 +60,39 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
     assert_equal :MEMCACHED_SUCCESS, ret
   end
 
+  def test_incr
+    ret = Lib.memcached_set(@mc, 'count', 5, "0", 1, 3600, 0)
+    assert_equal :MEMCACHED_SUCCESS, ret
+
+    value_ptr = MemoryPointer.new :uint64
+    ret = Lib.memcached_increment(@mc, "count", 5, 1, value_ptr)
+    assert_equal :MEMCACHED_SUCCESS, ret
+
+    assert_equal 1, read("count").to_i
+
+    value_ptr = MemoryPointer.new :uint64
+    ret = Lib.memcached_increment(@mc, "count", 5, 10, value_ptr)
+    assert_equal :MEMCACHED_SUCCESS, ret
+
+    assert_equal 11, read("count").to_i
+
+    value_ptr = MemoryPointer.new :uint64
+    ret = Lib.memcached_decrement(@mc, "count", 5, 3, value_ptr)
+    assert_equal :MEMCACHED_SUCCESS, ret
+
+    assert_equal 8, read("count").to_i
+  end
+
 
   private
+
+  def read(key)
+    string_length = MemoryPointer.new :size_t
+    flags = MemoryPointer.new :uint32
+    error = MemoryPointer.new :pointer
+    ret = Lib.memcached_get(@mc, key, key.length, string_length, flags, error)
+  end
+
 
   def dump_struct(s)
     puts
