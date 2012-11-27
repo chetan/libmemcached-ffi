@@ -26,9 +26,21 @@ class TestCache < MiniTest::Unit::TestCase
 
   def test_get
     @cache.set("foo", "bar", 0, 0)
-    val, flags = @cache.get("foo")
+    val = @cache.get("foo")
     assert val
     assert_equal "bar", val
+  end
+
+  def test_incr
+    @cache.set("count", "0", 0, 0)
+    assert_equal 1, @cache.incr("count")
+    assert_equal 2, @cache.incr("count")
+    assert_equal 5, @cache.incr("count", 3)
+    assert_equal "5", @cache.get("count")
+
+    assert_equal 3, @cache.decr("count", 2)
+    assert_equal 2, @cache.decr("count")
+    assert_equal "2", @cache.get("count")
   end
 
 

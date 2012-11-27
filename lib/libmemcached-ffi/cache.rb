@@ -77,17 +77,49 @@ module LibMemcachedFFI
     #
     # @return [Array<String, Fixnum>] data, flags
     def get(key)
-      string_length = MemoryPointer.new :size_t
-      flags = MemoryPointer.new :uint32
-      error = MemoryPointer.new :pointer
+      string_length = MemoryPointer.new(:size_t)
+      flags = MemoryPointer.new(:uint32)
+      error = MemoryPointer.new(:pointer)
       ret = Lib.memcached_get(@cache, key, key.length, string_length, flags, error)
 
       if Lib::MemcachedReturnT[error.read_int] != :MEMCACHED_SUCCESS then
         # TODO
       end
 
-      return ret, flags
+      return ret #, flags TODO
     end
+
+    # Increment a key's value
+    #
+    # @param [String] key
+    # @param [Fixnum] offset    Amount to increment by (default: 1)
+    #
+    # @return [Fixnum] new value of key
+    #
+    # Note that the key must be initialized to an unmarshalled integer first,
+    # via #set, #add, or #replace with *marshal* set to *false*.
+    def increment(key, offset=1)
+      value_ptr = MemoryPointer.new(:uint64)
+      ret = Lib.memcached_increment(@cache, key, key.length, offset, value_ptr)
+      return value_ptr.read_int
+    end
+    alias_method :incr, :increment
+
+    # Decrement a key's value
+    #
+    # @param [String] key
+    # @param [Fixnum] offset    Amount to decrement by (default: 1)
+    #
+    # @return [Fixnum] new value of key
+    #
+    # Note that the key must be initialized to an unmarshalled integer first,
+    # via #set, #add, or #replace with *marshal* set to *false*.
+    def decrement(key, offset=1)
+      value_ptr = MemoryPointer.new(:uint64)
+      ret = Lib.memcached_decrement(@cache, key, key.length, offset, value_ptr)
+      return value_ptr.read_int
+    end
+    alias_method :decr, :decrement
 
   end # Cache
 end # LibMemcachedFFI

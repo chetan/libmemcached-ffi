@@ -69,18 +69,21 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
     assert_equal :MEMCACHED_SUCCESS, ret
 
     assert_equal 1, read("count").to_i
+    assert_equal 1, value_ptr.read_int
 
     value_ptr = MemoryPointer.new :uint64
     ret = Lib.memcached_increment(@mc, "count", 5, 10, value_ptr)
     assert_equal :MEMCACHED_SUCCESS, ret
 
     assert_equal 11, read("count").to_i
+    assert_equal 11, value_ptr.read_int
 
     value_ptr = MemoryPointer.new :uint64
     ret = Lib.memcached_decrement(@mc, "count", 5, 3, value_ptr)
     assert_equal :MEMCACHED_SUCCESS, ret
 
     assert_equal 8, read("count").to_i
+    assert_equal 8, value_ptr.read_int
   end
 
 
