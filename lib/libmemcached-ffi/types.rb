@@ -6,7 +6,7 @@ module LibMemcachedFFI
       enum(arr.map{ |s| s.to_sym })
     end
 
-    BehaviorT = array_to_enum(%w{
+    MemcachedBehaviorT = array_to_enum(%w{
       MEMCACHED_BEHAVIOR_NO_BLOCK
       MEMCACHED_BEHAVIOR_TCP_NODELAY
       MEMCACHED_BEHAVIOR_HASH
@@ -47,7 +47,7 @@ module LibMemcachedFFI
       MEMCACHED_BEHAVIOR_MAX
     })
 
-    CallbackT = enum(
+    MemcachedCallbackT = enum(
       :MEMCACHED_CALLBACK_PREFIX_KEY, 0,
       :MEMCACHED_CALLBACK_USER_DATA, 1,
       :MEMCACHED_CALLBACK_CLEANUP_FUNCTION, 2,
@@ -58,13 +58,13 @@ module LibMemcachedFFI
       :MEMCACHED_CALLBACK_NAMESPACE
     )
 
-    ConnectionT = array_to_enum(%w{
+    MemcachedConnectionT = array_to_enum(%w{
       MEMCACHED_CONNECTION_TCP
       MEMCACHED_CONNECTION_UDP
       MEMCACHED_CONNECTION_UNIX_SOCKET
     })
 
-    HashT = array_to_enum(%w{
+    MemcachedHashT = array_to_enum(%w{
       MEMCACHED_HASH_DEFAULT
       MEMCACHED_HASH_MD5
       MEMCACHED_HASH_CRC
@@ -79,7 +79,7 @@ module LibMemcachedFFI
       MEMCACHED_HASH_MAX
     })
 
-    ReturnT = array_to_enum(%w{
+    MemcachedReturnT = array_to_enum(%w{
       MEMCACHED_SUCCESS
       MEMCACHED_FAILURE
       MEMCACHED_HOST_LOOKUP_FAILURE
@@ -133,7 +133,7 @@ module LibMemcachedFFI
       MEMCACHED_CONNECTION_SOCKET_CREATE_FAILURE
     })
 
-    ServerDistributionT = array_to_enum(%w{
+    MemcachedServerDistributionT = array_to_enum(%w{
       MEMCACHED_DISTRIBUTION_MODULA
       MEMCACHED_DISTRIBUTION_CONSISTENT
       MEMCACHED_DISTRIBUTION_CONSISTENT_KETAMA
@@ -143,6 +143,18 @@ module LibMemcachedFFI
       MEMCACHED_DISTRIBUTION_VIRTUAL_BUCKET
       MEMCACHED_DISTRIBUTION_CONSISTENT_MAX
     })
+
+    MemcachedServerStateT = array_to_enum(%w{
+      MEMCACHED_SERVER_STATE_NEW
+      MEMCACHED_SERVER_STATE_ADDRINFO
+      MEMCACHED_SERVER_STATE_IN_PROGRESS
+      MEMCACHED_SERVER_STATE_CONNECTED
+      MEMCACHED_SERVER_STATE_IN_TIMEOUT
+      MEMCACHED_SERVER_STATE_DISABLED
+    })
+
+    MEMCACHED_NI_MAXHOST = 1025
+    MEMCACHED_NI_MAXSERV = 32
 
   end # Lib
 end # LibMemcachedFFI
