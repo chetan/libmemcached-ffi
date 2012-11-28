@@ -14,7 +14,14 @@ module LibMemcachedFFI
       /usr/local/lib/libmemcached.so
     })
 
-    ffi_lib(paths.find { |path| File.exist?(path) })
+    paths.each do |path|
+      begin
+        ffi_lib(paths.find { |path| File.exist?(path) })
+      rescue LoadError => ex
+        ffi_lib("memcached")
+      end
+    end
+
   end
 end
 
