@@ -31,9 +31,6 @@ require 'libmemcached-ffi/structs'
 module LibMemcachedFFI
   module Lib
 
-
-    # BASIC METHODS
-
     # const char * memcached_lib_version(void)
     attach_function :memcached_lib_version, [ ], :string
 
@@ -57,6 +54,12 @@ module LibMemcachedFFI
 
     # memcached_return_t memcached_decrement(memcached_st *ptr, const char *key, size_t key_length, uint32_t offset, uint64_t *value)
     attach_function :memcached_decrement, [ :pointer, :string, :size_t, :uint32, :pointer ], MemcachedReturnT
+
+    # memcached_return_t memcached_flush(memcached_st *ptr, time_t expiration)
+    attach_function :memcached_flush, [ :pointer, :time_t ], MemcachedReturnT
+
+    # memcached_return_t memcached_delete(memcached_st *ptr, const char *key, size_t key_length, time_t expiration)
+    attach_function :memcached_delete, [ :pointer, :string, :size_t, :time_t ], MemcachedReturnT
 
   end
 

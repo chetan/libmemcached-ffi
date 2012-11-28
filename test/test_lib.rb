@@ -86,14 +86,50 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
     assert_equal 8, value_ptr.read_int
   end
 
+  def test_flush
+    create_test_key()
+
+    ret = Lib.memcached_flush(@mc, 0)
+    assert_equal :MEMCACHED_SUCCESS, ret
+
+    test_key_is_missing()
+  end
+
+  def test_delete
+    create_test_key()
+
+    ret = Lib.memcached_delete(@mc, "testkey", 7, 0)
+    assert_equal :MEMCACHED_SUCCESS, ret
+
+    test_key_is_missing()
+  end
+
 
   private
+
+  def create_test_key
+    ret = Lib.memcached_set(@mc, 'testkey', 7, 'testval', 7, 3600, 0)
+    assert_equal :MEMCACHED_SUCCESS, ret
+    assert_equal "testval", read("testkey")
+  end
+
+  def test_key_is_missing
+    # key should be missing
+    string_length = MemoryPointer.new :size_t
+    flags = MemoryPointer.new :uint32
+    error = MemoryPointer.new :pointer
+    ret = Lib.memcached_get(@mc, "testkey", 7, string_length, flags, error)
+    assert_equal :MEMCACHED_NOTFOUND, Lib::MemcachedReturnT[error.read_int]
+  end
 
   def read(key)
     string_length = MemoryPointer.new :size_t
     flags = MemoryPointer.new :uint32
     error = MemoryPointer.new :pointer
     ret = Lib.memcached_get(@mc, key, key.length, string_length, flags, error)
+    assert_equal :MEMCACHED_SUCCESS, Lib::MemcachedReturnT[error.read_int]
+
+    return ret
   end
 
 
