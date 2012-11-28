@@ -104,6 +104,13 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
     test_key_is_missing()
   end
 
+  def test_exist
+    create_test_key()
+
+    ret = Lib.memcached_exist(@mc, "testkey", 7)
+    assert_equal :MEMCACHED_SUCCESS, ret
+  end
+
 
   private
 

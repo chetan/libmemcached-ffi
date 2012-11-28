@@ -61,6 +61,9 @@ module LibMemcachedFFI
     # memcached_return_t memcached_delete(memcached_st *ptr, const char *key, size_t key_length, time_t expiration)
     attach_function :memcached_delete, [ :pointer, :string, :size_t, :time_t ], MemcachedReturnT
 
+    # memcached_return_t memcached_exist(memcached_st *ptr, char *key, size_t *key_length)
+    attach_function :memcached_exist, [ :pointer, :string, :size_t ], MemcachedReturnT
+
   end
 
 end
