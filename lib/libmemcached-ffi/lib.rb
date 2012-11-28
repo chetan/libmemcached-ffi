@@ -43,8 +43,20 @@ module LibMemcachedFFI
     # void memcached_free(memcached_st *ptr)
     attach_function :memcached_free, [ :pointer ], :void
 
+    # const char *memcached_last_error_message(memcached_st *)
+    attach_function :memcached_last_error_message, [ :pointer ], :string
+
     # char * memcached_get(memcached_st *ptr, const char *key, size_t key_length, size_t *value_length, uint32_t *flags, memcached_return_t *error)
     attach_function :memcached_get, [ :pointer, :string, :size_t, :pointer, :pointer, :pointer ], :string
+
+    # memcached_return_t memcached_mget(memcached_st *ptr, const char * const *keys, const size_t *key_length, size_t number_of_keys)
+    attach_function :memcached_mget, [ :pointer, :pointer, :pointer, :size_t ], MemcachedReturnT
+
+    # memcached_result_st * memcached_fetch_result(memcached_st *ptr, memcached_result_st *result, memcached_return_t *error)
+    attach_function :memcached_fetch_result, [ :pointer, :pointer, :pointer ], :pointer # MemcachedResultSt
+
+    # const char *memcached_result_value(memcached_result_st *ptr)
+    attach_function :memcached_result_value, [ :pointer ], :string
 
     # memcached_return_t memcached_set(memcached_st *ptr, const char *key, size_t key_length, const char *value, size_t value_length, time_t expiration, uint32_t flags)
     attach_function :memcached_set, [ :pointer, :string, :size_t, :string, :size_t, :time_t, :uint32 ], MemcachedReturnT

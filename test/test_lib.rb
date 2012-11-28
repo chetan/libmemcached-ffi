@@ -112,6 +112,39 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
     assert_equal :MEMCACHED_SUCCESS, ret
   end
 
+  def test_mget
+    # create test data
+    create_test_key()
+    key2 = "bar"
+    ret = Lib.memcached_set(@mc, key2, key2.length, 'baz', 3, 0, 0)
+    assert_equal :MEMCACHED_SUCCESS, ret
+    assert_equal "baz", read(key2)
+
+    # create ptr args
+    keys_ptr = FFIUtil.string_ptrs([@key, key2])
+    keylen_ptr = FFIUtil.ptrs_of_type(:size_t, [@key.length, key2.length])
+
+    # mget
+    ret = Lib.memcached_mget(@mc, keys_ptr, keylen_ptr, 2)
+    if ret != :MEMCACHED_SUCCESS then
+      puts Lib.memcached_last_error_message(@mc)
+    end
+    assert_equal :MEMCACHED_SUCCESS, ret
+
+    # fetch first result - get result from passed pointer
+    result_ptr = MemoryPointer.new(Lib::MemcachedResultSt)
+    error_ptr = MemoryPointer.new(:pointer)
+    Lib.memcached_fetch_result(@mc, result_ptr, error_ptr)
+    assert_equal :MEMCACHED_SUCCESS, Lib::MemcachedReturnT[error_ptr.read_int]
+    assert_equal "testval", Lib.memcached_result_value(result_ptr)
+
+    # fetch second result - get result from return val
+    error_ptr = MemoryPointer.new(:pointer)
+    res = Lib.memcached_fetch_result(@mc, nil, error_ptr)
+    assert_equal :MEMCACHED_SUCCESS, Lib::MemcachedReturnT[error_ptr.read_int]
+    assert_equal "baz", Lib.memcached_result_value(res)
+  end
+
 
   private
 
