@@ -32,15 +32,15 @@ class TestCache < MiniTest::Unit::TestCase
   end
 
   def test_incr
-    @cache.set("count", "0", 0, 0)
+    @cache.set("count", "0", 0, false, 0)
     assert_equal 1, @cache.incr("count")
     assert_equal 2, @cache.incr("count")
     assert_equal 5, @cache.incr("count", 3)
-    assert_equal "5", @cache.get("count")
+    assert_equal "5", @cache.get("count", false)
 
     assert_equal 3, @cache.decr("count", 2)
     assert_equal 2, @cache.decr("count")
-    assert_equal "2", @cache.get("count")
+    assert_equal "2", @cache.get("count", false)
   end
 
 

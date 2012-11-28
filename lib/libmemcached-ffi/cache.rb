@@ -66,7 +66,8 @@ module LibMemcachedFFI
       @cache = Lib.memcached(config, config.length)
     end
 
-    def set(key, val, ttl=@default_ttl, flags=FLAGS)
+    def set(key, val, ttl=@default_ttl, marshal=true, flags=FLAGS)
+      val = marshal ? Marshal.dump(val) : val
       ret = Lib.memcached_set(@cache, key, key.length, val, val.length, ttl, flags)
     end
     alias_method :put, :set
@@ -76,7 +77,7 @@ module LibMemcachedFFI
     # @param [String] key
     #
     # @return [Array<String, Fixnum>] data, flags
-    def get(key)
+    def get(key, marshal=true)
       string_length = MemoryPointer.new(:size_t)
       flags = MemoryPointer.new(:uint32)
       error = MemoryPointer.new(:pointer)
@@ -86,7 +87,7 @@ module LibMemcachedFFI
         # TODO
       end
 
-      return ret #, flags TODO
+      return (marshal ? Marshal.load(ret) : ret) # TODO flags
     end
 
     # Increment a key's value
