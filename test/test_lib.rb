@@ -6,6 +6,7 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
   include FFI
 
   def setup
+    @key = "testkey"
     @port = 11211
     conf = "--SERVER=127.0.0.1:#{@port}"
     @mc = Lib.memcached(conf, conf.length)
@@ -40,13 +41,13 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
 
     # seed data
     s = Time.new.to_s
-    ret = Lib.memcached_set(@mc, 'testkey', 7, s, s.length, 3600, 0)
+    ret = Lib.memcached_set(@mc, @key, 7, s, s.length, 3600, 0)
 
     # try to read back
     string_length = MemoryPointer.new :size_t
     flags = MemoryPointer.new :uint32
     error = MemoryPointer.new :pointer
-    ret = Lib.memcached_get(@mc, 'testkey', 7, string_length, flags, error)
+    ret = Lib.memcached_get(@mc, @key, 7, string_length, flags, error)
 
     assert ret
     assert_equal s, ret
@@ -56,33 +57,33 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
   end
 
   def test_set
-    ret = Lib.memcached_set(@mc, 'testkey', 7, 'testval', 7, 3600, 0)
+    ret = Lib.memcached_set(@mc, @key, @key.length, 'testval', 7, 3600, 0)
     assert_equal :MEMCACHED_SUCCESS, ret
   end
 
   def test_incr
-    ret = Lib.memcached_set(@mc, 'count', 5, "0", 1, 3600, 0)
+    ret = Lib.memcached_set(@mc, @key, @key.length, "0", 1, 3600, 0)
     assert_equal :MEMCACHED_SUCCESS, ret
 
     value_ptr = MemoryPointer.new :uint64
-    ret = Lib.memcached_increment(@mc, "count", 5, 1, value_ptr)
+    ret = Lib.memcached_increment(@mc, @key, @key.length, 1, value_ptr)
     assert_equal :MEMCACHED_SUCCESS, ret
 
-    assert_equal 1, read("count").to_i
+    assert_equal 1, read(@key).to_i
     assert_equal 1, value_ptr.read_int
 
     value_ptr = MemoryPointer.new :uint64
-    ret = Lib.memcached_increment(@mc, "count", 5, 10, value_ptr)
+    ret = Lib.memcached_increment(@mc, @key, @key.length, 10, value_ptr)
     assert_equal :MEMCACHED_SUCCESS, ret
 
-    assert_equal 11, read("count").to_i
+    assert_equal 11, read(@key).to_i
     assert_equal 11, value_ptr.read_int
 
     value_ptr = MemoryPointer.new :uint64
-    ret = Lib.memcached_decrement(@mc, "count", 5, 3, value_ptr)
+    ret = Lib.memcached_decrement(@mc, @key, @key.length, 3, value_ptr)
     assert_equal :MEMCACHED_SUCCESS, ret
 
-    assert_equal 8, read("count").to_i
+    assert_equal 8, read(@key).to_i
     assert_equal 8, value_ptr.read_int
   end
 
@@ -98,7 +99,7 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
   def test_delete
     create_test_key()
 
-    ret = Lib.memcached_delete(@mc, "testkey", 7, 0)
+    ret = Lib.memcached_delete(@mc, @key, @key.length, 0)
     assert_equal :MEMCACHED_SUCCESS, ret
 
     test_key_is_missing()
@@ -107,7 +108,7 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
   def test_exist
     create_test_key()
 
-    ret = Lib.memcached_exist(@mc, "testkey", 7)
+    ret = Lib.memcached_exist(@mc, @key, @key.length)
     assert_equal :MEMCACHED_SUCCESS, ret
   end
 
@@ -115,9 +116,9 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
   private
 
   def create_test_key
-    ret = Lib.memcached_set(@mc, 'testkey', 7, 'testval', 7, 3600, 0)
+    ret = Lib.memcached_set(@mc, @key, @key.length, 'testval', 7, 3600, 0)
     assert_equal :MEMCACHED_SUCCESS, ret
-    assert_equal "testval", read("testkey")
+    assert_equal "testval", read(@key)
   end
 
   def test_key_is_missing
@@ -125,7 +126,7 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
     string_length = MemoryPointer.new :size_t
     flags = MemoryPointer.new :uint32
     error = MemoryPointer.new :pointer
-    ret = Lib.memcached_get(@mc, "testkey", 7, string_length, flags, error)
+    ret = Lib.memcached_get(@mc, @key, @key.length, string_length, flags, error)
     assert_equal :MEMCACHED_NOTFOUND, Lib::MemcachedReturnT[error.read_int]
   end
 
