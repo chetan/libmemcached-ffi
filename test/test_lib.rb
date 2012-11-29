@@ -147,12 +147,14 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
     error_ptr = MemoryPointer.new(:pointer)
     Lib.memcached_fetch_result(@mc, result_ptr, error_ptr)
     assert_equal :MEMCACHED_SUCCESS, Lib::MemcachedReturnT[error_ptr.read_int]
+    assert_equal @key, Lib.memcached_result_key_value(result_ptr)
     assert_equal "testval", Lib.memcached_result_value(result_ptr)
 
     # fetch second result - get result from return val
     error_ptr = MemoryPointer.new(:pointer)
     res = Lib.memcached_fetch_result(@mc, nil, error_ptr)
     assert_equal :MEMCACHED_SUCCESS, Lib::MemcachedReturnT[error_ptr.read_int]
+    assert_equal key2, Lib.memcached_result_key_value(res)
     assert_equal "baz", Lib.memcached_result_value(res)
     assert_equal 50, Lib.memcached_result_flags(res)
   end

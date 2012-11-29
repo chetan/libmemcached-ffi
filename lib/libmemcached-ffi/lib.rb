@@ -60,6 +60,9 @@ module LibMemcachedFFI
     # memcached_result_st * memcached_fetch_result(memcached_st *ptr, memcached_result_st *result, memcached_return_t *error)
     attach_function :memcached_fetch_result, [ :pointer, :pointer, :pointer ], :pointer # MemcachedResultSt
 
+    # const char * memcached_result_key_value(memcached_result_st *result)
+    attach_function :memcached_result_key_value, [ :pointer ], :string
+
     # const char *memcached_result_value(memcached_result_st *ptr)
     attach_function :memcached_result_value, [ :pointer ], :string
 
