@@ -75,9 +75,10 @@ module LibMemcachedFFI
     # Retrieve data for given key
     #
     # @param [String] key
+    # @param [Boolean] unmarshal          Whether or not to unmarshall data (default: true)
     #
-    # @return [Array<String, Fixnum>] data, flags
-    def get(key, marshal=true)
+    # @return [Object] data
+    def get(key, unmarshal=true)
       string_length = MemoryPointer.new(:size_t)
       flags = MemoryPointer.new(:uint32)
       error = MemoryPointer.new(:pointer)
@@ -87,7 +88,45 @@ module LibMemcachedFFI
         # TODO
       end
 
-      return (marshal ? Marshal.load(ret) : ret) # TODO flags
+      return (unmarshal ? Marshal.load(ret) : ret) # TODO flags
+    end
+
+    # Retrieve data for the given keys
+    #
+    # @param [Array<String>] keys
+    # @param [Boolean] unmarshal          Whether or not to unmarshall data (default: true)
+    #
+    # @return [Hash] key/value pairs
+    def mget(keys, unmarshal=true)
+      keys = [ keys ] if not keys.kind_of? Array
+
+      keys_ptr = FFIUtil.string_ptrs(keys)
+      keylen_ptr = FFIUtil.ptrs_of_type(:size_t, keys.map{ |k| k.size })
+
+      ret = Lib.memcached_mget(@cache, keys_ptr, keylen_ptr, keys.size)
+      if ret != :MEMCACHED_SUCCESS then
+        # TODO
+        # Lib.memcached_last_error_message(@mc)
+      end
+
+      results = {}
+      res_ptr = MemoryPointer.new(Lib::MemcachedResultSt)
+      error_ptr = MemoryPointer.new(:pointer)
+      1.upto(keys.size) do |i|
+        Lib.memcached_fetch_result(@cache, res_ptr, error_ptr)
+        if Lib::MemcachedReturnT[error_ptr.read_int] != :MEMCACHED_SUCCESS then
+          # TODO
+        end
+
+        k = Lib.memcached_result_key_value(res_ptr)
+        v = Lib.memcached_result_value(res_ptr)
+        results[k] = (unmarshal ? Marshal.load(v) : v)
+      end
+
+      return results
+
+    ensure
+      Lib.memcached_result_free(res_ptr) if res_ptr
     end
 
     # Increment a key's value

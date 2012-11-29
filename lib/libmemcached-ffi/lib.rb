@@ -48,6 +48,12 @@ module LibMemcachedFFI
     # const char *memcached_last_error_message(memcached_st *)
     attach_function :memcached_last_error_message, [ :pointer ], :string
 
+    # uint64_t memcached_behavior_get(memcached_st *ptr, memcached_behavior_t flag)
+    attach_function :memcached_behavior_get, [ :pointer, MemcachedBehaviorT ], :uint64
+
+    # memcached_return_t memcached_behavior_set(memcached_st *ptr, memcached_behavior_t flag, uint64_t data)
+    attach_function :memcached_behavior_set, [ :pointer, MemcachedBehaviorT, :uint64 ], MemcachedReturnT
+
 
     # RETRIEVAL
 
@@ -69,6 +75,9 @@ module LibMemcachedFFI
     # uint32_t memcached_result_flags(const memcached_result_st *result)
     attach_function :memcached_result_flags, [ :pointer ], :uint32
 
+    # void memcached_result_free(memcached_result_st *result)
+    attach_function :memcached_result_free, [ :pointer ], :void
+
 
     # STORAGE
 
@@ -83,7 +92,6 @@ module LibMemcachedFFI
 
     # memcached_return_t memcached_cas(memcached_st *ptr, const char *key, size_t key_length, const char *value, size_t value_length, time_t expiration, uint32_t flags, uint64_t cas)
     attach_function :memcached_cas, [ :pointer, :string, :size_t, :string, :size_t, :time_t, :uint32, :uint32 ], MemcachedReturnT
-
 
 
     # COUNTERS

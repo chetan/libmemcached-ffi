@@ -25,10 +25,23 @@ class TestCache < MiniTest::Unit::TestCase
   end
 
   def test_get
-    @cache.set("foo", "bar", 0, 0)
+    @cache.set("foo", "bar")
     val = @cache.get("foo")
     assert val
     assert_equal "bar", val
+  end
+
+  def test_mget
+    @cache.set("foo", "bar")
+    @cache.set("baz", "widget")
+
+    ret = @cache.mget(%w{foo baz})
+    assert ret
+    assert_equal 2, ret.size
+    assert ret.include? "foo"
+    assert ret.include? "baz"
+    assert_equal "bar", ret["foo"]
+    assert_equal "widget", ret["baz"]
   end
 
   def test_incr
