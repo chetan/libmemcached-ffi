@@ -56,7 +56,10 @@ class TestCache < MiniTest::Unit::TestCase
     assert_equal "2", @cache.get("count", false)
   end
 
-
-  private
+  def test_create_invalid_hash
+    assert_throws(ArgumentError) do
+      cache = LibMemcachedFFI::Cache.new("localhost", :hash => :foobar)
+    end
+  end
 
 end

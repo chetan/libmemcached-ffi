@@ -4,6 +4,10 @@ module LibMemcachedFFI
 
     include FFI
 
+    DIRECT_VALUE_BEHAVIORS = [:retry_timeout, :connect_timeout, :rcv_timeout,
+                              :snd_timeout, :socket_recv_size, :poll_timeout,
+                              :socket_send_size, :server_failure_limit]
+
     DEFAULTS = {
       :hash                  => :fnv1_32,
       :no_block              => false,
@@ -18,6 +22,7 @@ module LibMemcachedFFI
       :retry_timeout         => 30,
       :timeout               => 0.25,
       :rcv_timeout           => nil,
+      :snd_timeout           => nil,
       :poll_timeout          => nil,
       :connect_timeout       => 4,
       :prefix_key            => '',
@@ -64,6 +69,8 @@ module LibMemcachedFFI
 
       config = config.join(" ")
       @cache = Lib.memcached(config, config.length)
+
+      set_behaviors()
     end
 
     def set(key, val, ttl=@default_ttl, marshal=true, flags=FLAGS)
@@ -160,6 +167,60 @@ module LibMemcachedFFI
       return value_ptr.read_int
     end
     alias_method :decr, :decrement
+
+
+
+    private
+
+    # Process the @options hash and set behaviors accordingly
+    def set_behaviors
+      # configure behaviors/options
+      @options.each do |opt, val|
+        next if opt == :hash
+        set_behavior(opt, val)
+      end
+
+      # BUG Hash must be last due to the weird Libmemcached multi-behaviors
+      # (as per the memcached gem)
+      set_behavior(:hash, @options[:hash])
+    end
+
+    # Set the given behavior on the cache pointer
+    #
+    # @param [Symbol] opt     option name
+    # @param [Object] val     option value
+    def set_behavior(opt, val)
+
+      flag = "MEMCACHED_BEHAVIOR_#{opt.upcase}".to_sym
+      if not Lib::MemcachedBehaviorT.symbols.include? flag then
+        return # not a valid behavior
+      end
+
+      if opt == :hash then
+        key = "MEMCACHED_HASH_#{val.to_s.upcase}".to_sym
+        val = Lib::MemcachedHashT[key]
+        raise(ArgumentError, "invalid hash type: #{val}") if val.nil?
+
+      elsif opt == :distribution then
+        key = "MEMCACHED_DISTRIBUTION_#{val.to_s.upcase}".to_sym
+        val = Lib::MemcachedServerDistributionT[key]
+        raise(ArgumentError, "invalid distribution type: #{val}") if val.nil?
+
+      elsif DIRECT_VALUE_BEHAVIORS.include? opt then
+        return if val.nil? # don't need to do anything, probably
+
+      else
+        # TODO raise?
+      end
+
+      if val == false then
+        val = 0
+      elsif val == true then
+        val = 1
+      end
+
+      Lib.memcached_behavior_set(@cache, Lib::MemcachedBehaviorT[flag], val)
+    end
 
   end # Cache
 end # LibMemcachedFFI
