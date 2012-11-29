@@ -81,6 +81,10 @@ module LibMemcachedFFI
     # memcached_return_t memcached_replace(memcached_st *ptr, const char *key, size_t key_length, const char *value, size_t value_length, time_t expiration, uint32_t flags)
     attach_function :memcached_replace, [ :pointer, :string, :size_t, :string, :size_t, :time_t, :uint32 ], MemcachedReturnT
 
+    # memcached_return_t memcached_cas(memcached_st *ptr, const char *key, size_t key_length, const char *value, size_t value_length, time_t expiration, uint32_t flags, uint64_t cas)
+    attach_function :memcached_cas, [ :pointer, :string, :size_t, :string, :size_t, :time_t, :uint32, :uint32 ], MemcachedReturnT
+
+
 
     # COUNTERS
 
