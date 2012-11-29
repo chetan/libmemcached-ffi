@@ -57,11 +57,20 @@ module LibMemcachedFFI
     FLAGS = 0x0
     attr_accessor :default_ttl, :options
 
+    # Create a new Cache client
+    #
+    # @param [Array<String>] servers      List of servers to connect to
+    # @param [Hash] opts
     def initialize(servers, opts={})
       # Merge option defaults and discard meaningless keys
       @options = DEFAULTS.merge(opts)
       @options.delete_if { |k,v| not DEFAULTS.keys.include? k }
       @default_ttl = options[:default_ttl]
+
+      # Force :buffer_requests to use :no_block
+      # XXX Deleting the :no_block key should also work, but libmemcached doesn't seem to set it
+      # consistently
+      @options[:no_block] = true if @options[:buffer_requests]
 
       servers = [ servers ] if not servers.kind_of? Array
       config = []
