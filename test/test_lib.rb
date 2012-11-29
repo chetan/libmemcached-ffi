@@ -116,7 +116,7 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
     # create test data
     create_test_key()
     key2 = "bar"
-    ret = Lib.memcached_set(@mc, key2, key2.length, 'baz', 3, 0, 0)
+    ret = Lib.memcached_set(@mc, key2, key2.length, 'baz', 3, 0, 50)
     assert_equal :MEMCACHED_SUCCESS, ret
     assert_equal "baz", read(key2)
 
@@ -143,6 +143,7 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
     res = Lib.memcached_fetch_result(@mc, nil, error_ptr)
     assert_equal :MEMCACHED_SUCCESS, Lib::MemcachedReturnT[error_ptr.read_int]
     assert_equal "baz", Lib.memcached_result_value(res)
+    assert_equal 50, Lib.memcached_result_flags(res)
   end
 
 
