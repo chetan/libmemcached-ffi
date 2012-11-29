@@ -59,6 +59,17 @@ class TestLibMemcachedFFI_Lib < MiniTest::Unit::TestCase
   def test_set
     ret = Lib.memcached_set(@mc, @key, @key.length, 'testval', 7, 3600, 0)
     assert_equal :MEMCACHED_SUCCESS, ret
+    assert_equal "testval", read(@key)
+
+    ret = Lib.memcached_add(@mc, @key, @key.length, 'testval', 7, 3600, 0)
+    assert_equal :MEMCACHED_NOTSTORED, ret
+
+    ret = Lib.memcached_replace(@mc, @key, @key.length, 'foobar', 6, 3600, 0)
+    assert_equal :MEMCACHED_SUCCESS, ret
+    assert_equal "foobar", read(@key)
+
+    ret = Lib.memcached_replace(@mc, "asdf", 4, 'foobar', 6, 3600, 0)
+    assert_equal :MEMCACHED_NOTSTORED, ret
   end
 
   def test_incr

@@ -31,6 +31,8 @@ require 'libmemcached-ffi/structs'
 module LibMemcachedFFI
   module Lib
 
+    # BASIC
+
     # const char * memcached_lib_version(void)
     attach_function :memcached_lib_version, [ ], :string
 
@@ -45,6 +47,9 @@ module LibMemcachedFFI
 
     # const char *memcached_last_error_message(memcached_st *)
     attach_function :memcached_last_error_message, [ :pointer ], :string
+
+
+    # RETRIEVAL
 
     # char * memcached_get(memcached_st *ptr, const char *key, size_t key_length, size_t *value_length, uint32_t *flags, memcached_return_t *error)
     attach_function :memcached_get, [ :pointer, :string, :size_t, :pointer, :pointer, :pointer ], :string
@@ -61,14 +66,29 @@ module LibMemcachedFFI
     # uint32_t memcached_result_flags(const memcached_result_st *result)
     attach_function :memcached_result_flags, [ :pointer ], :uint32
 
+
+    # STORAGE
+
     # memcached_return_t memcached_set(memcached_st *ptr, const char *key, size_t key_length, const char *value, size_t value_length, time_t expiration, uint32_t flags)
     attach_function :memcached_set, [ :pointer, :string, :size_t, :string, :size_t, :time_t, :uint32 ], MemcachedReturnT
+
+    # memcached_return_t memcached_add(memcached_st *ptr, const char *key, size_t key_length, const char *value, size_t value_length, time_t expiration, uint32_t flags)
+    attach_function :memcached_add, [ :pointer, :string, :size_t, :string, :size_t, :time_t, :uint32 ], MemcachedReturnT
+
+    # memcached_return_t memcached_replace(memcached_st *ptr, const char *key, size_t key_length, const char *value, size_t value_length, time_t expiration, uint32_t flags)
+    attach_function :memcached_replace, [ :pointer, :string, :size_t, :string, :size_t, :time_t, :uint32 ], MemcachedReturnT
+
+
+    # COUNTERS
 
     # memcached_return_t memcached_increment(memcached_st *ptr, const char *key, size_t key_length, uint32_t offset, uint64_t *value)
     attach_function :memcached_increment, [ :pointer, :string, :size_t, :uint32, :pointer ], MemcachedReturnT
 
     # memcached_return_t memcached_decrement(memcached_st *ptr, const char *key, size_t key_length, uint32_t offset, uint64_t *value)
     attach_function :memcached_decrement, [ :pointer, :string, :size_t, :uint32, :pointer ], MemcachedReturnT
+
+
+    # MISC
 
     # memcached_return_t memcached_flush(memcached_st *ptr, time_t expiration)
     attach_function :memcached_flush, [ :pointer, :time_t ], MemcachedReturnT
